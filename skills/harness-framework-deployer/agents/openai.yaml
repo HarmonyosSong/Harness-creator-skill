@@ -1,4 +1,4 @@
 interface:
   display_name: "Harness Framework Deployer"
-  short_description: "Deploy Harness workflows and package them as installable Codex plugins"
-  default_prompt: "Use $harness-framework-deployer to initialize, audit, or package a Harness framework as an installable Codex Plugin."
+  short_description: "Deploy Harness workflows and package them for Codex or Claude Code"
+  default_prompt: "Use $harness-framework-deployer to initialize, audit, or package a Harness framework as an installable Codex or Claude Code plugin."

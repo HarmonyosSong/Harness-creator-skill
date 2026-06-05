@@ -1,6 +1,6 @@
 # Generated File Contracts
 
-## Codex Plugin 分发文件
+## Plugin 分发文件
 
 ### `.codex-plugin/plugin.json`
 
@@ -20,6 +20,31 @@
 ### `skills/harness-framework-deployer/`
 
 必须包含原 skill 的 `SKILL.md`。如果原 skill 有 `agents/`、`references/`、`assets/`、`scripts/`，迁移后必须保持相同相对路径，避免破坏 `SKILL.md` 中引用。
+
+### `.claude-plugin/plugin.json`
+
+用于 Claude Code Plugin 分发。必须包含：
+
+- `name`: 与插件名一致，使用 lowercase hyphen-case。
+- `version`: 默认 `1.0.0`，除非用户指定。
+- `description`: 人类可读的一句话用途说明。
+- `author.name`: 作者或组织名。
+
+不得包含：
+
+- `[TODO: ...]` 占位符。
+- 不存在的 hooks、agents、commands、MCP、LSP 或其他 companion 配置。
+
+### `.claude-plugin/marketplace.json`
+
+用于 Claude Code marketplace 安装。必须包含：
+
+- `name`: marketplace 名称。
+- `description`: marketplace 用途说明；strict 校验会要求补齐。
+- `owner.name`: 维护者或组织名。
+- `plugins[]`: 至少包含 `name`、`source`、`description`。
+
+当插件就在 marketplace 仓库根目录时，`source` 使用 `"./"`。
 
 ## `<repo>_Harness.md`
 

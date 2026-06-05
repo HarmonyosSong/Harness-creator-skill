@@ -2,7 +2,7 @@
 
 执行 `full` 或 `skeleton` 部署时，必须实际写入目标仓库。不得只输出目录清单。
 
-当任务目标是“公开给别人安装”“GitHub 分发”“marketplace”或“按官方 Plugin 结构改造”时，必须生成 Plugin 分发层，而不是只保留裸 skill 根目录。
+当任务目标是“公开给别人安装”“GitHub 分发”“marketplace”或“按官方 Plugin 结构改造”时，必须生成目标 runtime 的 Plugin 分发层，而不是只保留裸 skill 根目录。
 
 ## 0. Plugin 分发结构
 
@@ -12,6 +12,9 @@
 <repo>/
 ├── .codex-plugin/
 │   └── plugin.json
+├── .claude-plugin/
+│   ├── plugin.json
+│   └── marketplace.json
 └── skills/
     └── harness-framework-deployer/
         ├── SKILL.md
@@ -32,12 +35,45 @@
 }
 ```
 
+最小 `.claude-plugin/plugin.json`：
+
+```json
+{
+  "name": "harness-framework-deployer",
+  "version": "1.0.0",
+  "description": "Deploy a reusable Harness workflow framework into client repositories.",
+  "author": {
+    "name": "HarmonyosSong"
+  }
+}
+```
+
+最小 `.claude-plugin/marketplace.json`：
+
+```json
+{
+  "name": "harness-creator-skill",
+  "description": "Claude Code marketplace for reusable Harness workflow deployment plugins.",
+  "owner": {
+    "name": "HarmonyosSong"
+  },
+  "plugins": [
+    {
+      "name": "harness-framework-deployer",
+      "source": "./",
+      "description": "Deploy a reusable Harness workflow framework into client repositories."
+    }
+  ]
+}
+```
+
 迁移规则：
 
 - 如果仓库根目录存在 `harness-framework-deployer/SKILL.md`，迁移到 `skills/harness-framework-deployer/`。
 - 保留 `agents/`、`references/`、`assets/`、`scripts/` 及其相对路径。
-- 根目录新增 `.codex-plugin/plugin.json`。
-- 如果用户还要求 marketplace，准备 marketplace entry；不要把 marketplace 元数据写进 `SKILL.md`。
+- Codex 分发新增 `.codex-plugin/plugin.json`。
+- Claude Code 分发新增 `.claude-plugin/plugin.json`；如果用户要求 GitHub marketplace 安装，同步新增 `.claude-plugin/marketplace.json`。
+- 不要把 marketplace 元数据写进 `SKILL.md`。
 - 迁移后裸 skill 根目录应删除或标记为冲突，避免维护两份 skill。
 
 
@@ -62,7 +98,10 @@ commands:
   verify_module:
 plugin_distribution:
   enabled:
-  plugin_json:
+  runtime:
+  codex_plugin_json:
+  claude_plugin_json:
+  claude_marketplace_json:
   skills_root:
   marketplace:
 todo_confirm:
@@ -178,6 +217,8 @@ command <key>
 - 所有生成脚本语法检查通过。
 - `preflight-context.sh --skip-git --task "Harness deploy smoke" <known path>` 能生成 Task Packet。
 - `AGENTS.md` 中登记的 command / skill 文件真实存在。
-- 如果是纯 Plugin 分发仓库，`check_deployed_harness.py <repo> --mode plugin` 通过。
-- 如果是已部署 Harness 的仓库同时需要 Plugin 分发，`check_deployed_harness.py <repo> --plugin` 通过。
+- 如果是纯 Codex Plugin 分发仓库，`check_deployed_harness.py <repo> --mode plugin --plugin-runtime codex` 通过。
+- 如果是纯 Claude Code Plugin 分发仓库，`check_deployed_harness.py <repo> --mode plugin --plugin-runtime claude` 和 `claude plugin validate --strict <repo>` 通过。
+- 如果是双兼容分发仓库，`check_deployed_harness.py <repo> --mode plugin --plugin-runtime both`、`claude plugin validate --strict <repo>` 和 Codex plugin validator 通过。
+- 如果是已部署 Harness 的仓库同时需要 Plugin 分发，`check_deployed_harness.py <repo> --plugin --plugin-runtime <codex|claude|both>` 通过。
 - 未确认命令全部出现在 `TODO(confirm)`，没有伪造成功。

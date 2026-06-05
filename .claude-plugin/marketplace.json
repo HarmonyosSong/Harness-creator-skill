@@ -1,0 +1,14 @@
+{
+  "name": "harness-creator-skill",
+  "description": "Claude Code marketplace for reusable Harness workflow deployment plugins.",
+  "owner": {
+    "name": "HarmonyosSong"
+  },
+  "plugins": [
+    {
+      "name": "harness-framework-deployer",
+      "source": "./",
+      "description": "Deploy a reusable Harness workflow framework into client repositories."
+    }
+  ]
+}

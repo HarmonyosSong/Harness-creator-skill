@@ -1,4 +1,4 @@
 interface:
   display_name: "Harness Framework Deployer"
-  short_description: "Deploy a reusable Harness workflow framework into client repositories"
-  default_prompt: "Use this skill to initialize or audit a Harness framework in this client repository."
+  short_description: "Deploy Harness workflows and package them for Claude Code or Codex"
+  default_prompt: "Use this skill to initialize, audit, or package a Harness framework as a Claude Code or Codex plugin."

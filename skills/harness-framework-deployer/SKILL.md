@@ -1,6 +1,6 @@
 ---
 name: harness-framework-deployer
-description: 通用开源 Harness 框架部署与分发技能。用于在任意客户端仓库中初始化、部署、升级或审查一套 AI Harness 工作流框架；也用于把 Harness creator skill 改造成 Codex Plugin 可安装分发结构（.codex-plugin/plugin.json + skills/<skill-name>/）。目标仓库不限品牌和技术栈，可用于 Android、iOS、HarmonyOS、Flutter、React Native、Web、小程序或混合客户端仓库。
+description: 通用开源 Harness 框架部署与分发技能。用于在任意客户端仓库中初始化、部署、升级或审查一套 AI Harness 工作流框架；也用于把 Harness creator skill 改造成 Codex Plugin 和 Claude Code Plugin 双兼容可安装分发结构（.codex-plugin/plugin.json + .claude-plugin/plugin.json + skills/<skill-name>/）。目标仓库不限品牌和技术栈，可用于 Android、iOS、HarmonyOS、Flutter、React Native、Web、小程序或混合客户端仓库。
 ---
 
 # Harness Framework Deployer
@@ -20,13 +20,16 @@ description: 通用开源 Harness 框架部署与分发技能。用于在任意�
 ## Distribution Model
 
 - Skill 是本地/仓库可发现的 authoring format：一个目录最少包含 `SKILL.md`，可选 `agents/`、`references/`、`assets/`、`scripts/`。
-- 公开给团队或其他开发者安装时，优先封装为 Codex Plugin；Plugin 是 installable distribution unit。
+- 公开给团队或其他开发者安装时，优先封装为目标 runtime 的 Plugin；Codex 使用 `.codex-plugin/plugin.json`，Claude Code 使用 `.claude-plugin/plugin.json`。
 - 生成或改造 Harness creator 分发仓库时，默认使用：
 
 ```text
 <repo>/
 ├── .codex-plugin/
 │   └── plugin.json
+├── .claude-plugin/
+│   ├── plugin.json
+│   └── marketplace.json
 └── skills/
     └── harness-framework-deployer/
         ├── SKILL.md
@@ -36,9 +39,10 @@ description: 通用开源 Harness 框架部署与分发技能。用于在任意�
         └── scripts/
 ```
 
-- 最小 `plugin.json` 必须包含 `name`、`version`、`description`、`skills`，其中 `skills` 指向 `./skills/`。
+- Codex `plugin.json` 必须包含 `name`、`version`、`description`、`skills`，其中 `skills` 指向 `./skills/`。
+- Claude Code `plugin.json` 必须放在 `.claude-plugin/plugin.json`；公开 marketplace 分发时，仓库根目录还必须有 `.claude-plugin/marketplace.json`。
 - 不要把单个 skill 根目录当作完整官方 Plugin 分发结构；它只能作为本地 skill 或 GitHub 目录安装来源。
-- 当用户目标是“公开给别人装 / marketplace / 官方推荐分发”，必须优先生成或迁移到 Plugin 结构。
+- 当用户目标是“公开给别人装 / marketplace / 官方推荐分发”，必须先确认目标 runtime，再生成 Codex、Claude Code 或双兼容 Plugin 结构。
 
 
 ## Input Contract
@@ -46,7 +50,7 @@ description: 通用开源 Harness 框架部署与分发技能。用于在任意�
 - 目标仓库路径；用户要求实际写入但没给路径时，先问目标仓库在哪里。
 - 部署模式：`plan_only`、`skeleton`、`full`、`audit`。
 - 目标 AI runtime：Codex、Claude、自定义 Agent、shell-only、未知或混合。
-- 分发目标：仅本地 skill、GitHub skill 目录安装、Codex Plugin、marketplace。
+- 分发目标：仅本地 skill、GitHub skill 目录安装、Codex Plugin、Claude Code Plugin、Codex marketplace、Claude Code marketplace、双兼容。
 - 可选偏好：Harness 名称、是否启用多 Agent、是否生成 project skills、是否生成 shell 脚本、是否接入 CI。
 
 ## Output Contract
@@ -54,7 +58,7 @@ description: 通用开源 Harness 框架部署与分发技能。用于在任意�
 - `target_profile`：技术栈、模块、入口、公共层、业务词、构建/测试/lint 命令、已有 AI 文件。
 - `deployment_manifest`：新建、更新、跳过、冲突四类文件。
 - 生成或更新的 Harness 文件路径。
-- 如果生成或迁移 Plugin：`.codex-plugin/plugin.json`、`skills/<skill-name>/` 结构和 marketplace 准备情况。
+- 如果生成或迁移 Plugin：`.codex-plugin/plugin.json`、`.claude-plugin/plugin.json`、`.claude-plugin/marketplace.json`、`skills/<skill-name>/` 结构和 marketplace 准备情况。
 - smoke 验证结果。
 - `TODO(confirm)`、未覆盖项和残余风险。
 
@@ -64,8 +68,8 @@ description: 通用开源 Harness 框架部署与分发技能。用于在任意�
 - 把已有仓库升级为带 preflight、gate、review、verify、postflight 的 AI 工作流。
 - 审查目标仓库已有 Harness 是否结构完整。
 - 生成目标仓库 project skills、Agent 契约、runtime 产物模板和脚本入口。
-- 把 `harness-framework-deployer/` 单 skill 仓库迁移为官方推荐的 Codex Plugin 分发结构。
-- 为 Harness creator 仓库生成最小 `.codex-plugin/plugin.json` 和 `skills/` 层级。
+- 把 `harness-framework-deployer/` 单 skill 仓库迁移为 Codex Plugin、Claude Code Plugin 或双兼容分发结构。
+- 为 Harness creator 仓库生成 `.codex-plugin/plugin.json`、`.claude-plugin/plugin.json`、`.claude-plugin/marketplace.json` 和 `skills/` 层级。
 
 ## Do Not Use This Skill For
 
@@ -81,8 +85,8 @@ description: 通用开源 Harness 框架部署与分发技能。用于在任意�
 3. Plan：生成 `deployment_manifest`，列出 create / update / skip / conflict。
 4. Generate：按 `references/one-click-deploy-implementation.md` 生成目录、入口、知识层、Agent 契约、脚本、runtime 模板和 project skills。
 5. Localize：按目标仓库证据写入模块路由、验证命令和技术栈约束；无法确认的内容写 `TODO(confirm)`。
-6. Package（仅分发任务）：生成或迁移 `.codex-plugin/plugin.json` 和 `skills/harness-framework-deployer/`，保留 skill 的 `agents/`、`references/`、`assets/`、`scripts/`。
-7. Validate：运行 `scripts/check_deployed_harness.py <target-repo>`；如果是纯 Plugin 分发仓库，运行 `scripts/check_deployed_harness.py <repo> --mode plugin`；如果是已部署 Harness 的仓库同时需要 Plugin 分发，追加 `--plugin`；并运行目标仓库可用的脚本语法检查和 preflight smoke。
+6. Package（仅分发任务）：按目标 runtime 生成或迁移 `.codex-plugin/plugin.json`、`.claude-plugin/plugin.json`、`.claude-plugin/marketplace.json` 和 `skills/harness-framework-deployer/`，保留 skill 的 `agents/`、`references/`、`assets/`、`scripts/`。
+7. Validate：运行 `scripts/check_deployed_harness.py <target-repo>`；如果是纯 Plugin 分发仓库，运行 `scripts/check_deployed_harness.py <repo> --mode plugin --plugin-runtime <codex|claude|both>`；如果是已部署 Harness 的仓库同时需要 Plugin 分发，追加 `--plugin --plugin-runtime <codex|claude|both>`；并运行目标仓库可用的脚本语法检查和 preflight smoke。
 8. Report：输出部署结果、Plugin 分发结构、验证结果、未确认项和风险。
 
 ## Decision Gates
@@ -96,7 +100,8 @@ description: 通用开源 Harness 框架部署与分发技能。用于在任意�
 - Gate 7：任何返回成功的验证脚本都必须真的执行命令或明确说明只是 smoke，不得伪装验证。
 - Gate 8：目标 runtime 不支持多 Agent 时，必须写明 blocked 或显式降级规则。
 - Gate 9：用户目标是公开分发/marketplace 时，不得只输出裸 skill 根目录；必须生成或报告缺失的 Plugin 层。
-- Gate 10：`plugin.json` 不得包含占位符、伪字段或不存在的 companion 配置；`skills` 必须指向真实 skill 父目录。
+- Gate 10：Codex `plugin.json` 不得包含占位符、伪字段或不存在的 companion 配置；`skills` 必须指向真实 skill 父目录。
+- Gate 11：Claude Code 分发必须通过 `claude plugin validate --strict`；如果目标是 GitHub marketplace 安装，必须提供 `.claude-plugin/marketplace.json`。
 
 ## Shared References
 
