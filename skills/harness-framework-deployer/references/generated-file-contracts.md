@@ -1,5 +1,26 @@
 # Generated File Contracts
 
+## Codex Plugin 分发文件
+
+### `.codex-plugin/plugin.json`
+
+必须包含：
+
+- `name`: 与插件目录名一致，使用 lowercase hyphen-case。
+- `version`: 默认 `1.0.0`，除非用户指定。
+- `description`: 人类可读的一句话用途说明。
+- `skills`: `./skills/`，并且该目录真实存在。
+
+不得包含：
+
+- `[TODO: ...]` 占位符。
+- 不存在的 `apps`、`mcpServers` 或其他 companion 配置。
+- marketplace policy；marketplace policy 属于 marketplace entry，不属于 plugin manifest。
+
+### `skills/harness-framework-deployer/`
+
+必须包含原 skill 的 `SKILL.md`。如果原 skill 有 `agents/`、`references/`、`assets/`、`scripts/`，迁移后必须保持相同相对路径，避免破坏 `SKILL.md` 中引用。
+
 ## `<repo>_Harness.md`
 
 必须包含：

@@ -1,0 +1,22 @@
+{
+  "name": "harness-framework-deployer",
+  "version": "1.0.0",
+  "description": "Deploy a reusable Harness workflow framework into client repositories.",
+  "skills": "./skills/",
+  "author": {
+    "name": "HarmonyosSong"
+  },
+  "interface": {
+    "displayName": "Harness Framework Deployer",
+    "shortDescription": "Deploy Harness workflows as installable Codex plugins.",
+    "longDescription": "Initialize, audit, and package reusable Harness workflow frameworks for client repositories, including Codex Plugin distribution structure.",
+    "developerName": "HarmonyosSong",
+    "category": "Productivity",
+    "capabilities": [
+      "Create Harness workflow scaffolds",
+      "Audit Harness deployment structure",
+      "Package skills as Codex Plugins"
+    ],
+    "defaultPrompt": "Use the Harness Framework Deployer to initialize, audit, or package a Harness workflow framework."
+  }
+}

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Harness Framework Deployer"
-  short_description: "Deploy a reusable Harness workflow framework into client repositories"
-  default_prompt: "Use $harness-framework-deployer to initialize or audit a Harness framework in this client repository."
