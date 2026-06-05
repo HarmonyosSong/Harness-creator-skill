@@ -1,0 +1,38 @@
+---
+name: <repo>-harness
+description: <repo> 项目 Harness 显式入口。只有用户调用 /harness 或明确要求使用 Harness 时启用。
+---
+
+# <repo> Harness
+
+## Pattern
+
+- ADK 5-pattern tags: `Pipeline` + `Tool Wrapper` + `Reviewer`
+
+## Input Contract
+
+- 用户任务
+- 文件路径或模块名
+- 可选错误日志
+
+## Output Contract
+
+- task_packet_path
+- context_summary_path
+- route_result
+- verification_result
+- risks
+
+## Workflow
+
+1. Thinking Mode
+2. Preflight
+3. Route
+4. Gate
+5. Verify
+6. Postflight
+
+## Gates
+
+- 未运行 preflight 不得修改文件。
+- 修改类任务未授权不得执行。
