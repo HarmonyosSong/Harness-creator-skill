@@ -25,33 +25,34 @@ flowchart TD
   C -->|"未选择"| STOP0["STOP: 不运行 preflight，不修改文件"]
   D --> F["Preflight"]
   E --> F
-  F --> G["生成 Task Packet + Context Summary"]
-  G --> H["Multi-Agent Gate"]
-  H --> I["Route: 加载必要规则"]
-  I --> J{"是否修改文件"}
-  J -->|"否"| R0["只读调研输出"]
-  J -->|"是"| K{"Quick Mode 是否准入"}
-  K -->|"是"| L["Quick Task Card"]
-  K -->|"否"| M["Spec Sign-off"]
-  M --> N["Implementation Plan"]
-  N --> O["Go Gate"]
-  L --> P["Execute"]
-  O --> P
-  P --> Q["Reviewer Gate"]
-  Q --> R["Pre-Build Review"]
-  R --> S{"允许验证"}
-  S -->|"否"| STOP1["STOP: 返回 Review / Plan / 用户确认"]
-  S -->|"是"| T["Verify"]
-  T --> U{"验证通过"}
-  U -->|"否"| V["Error Workflow + Triage"]
-  U -->|"是"| W["Postflight"]
-  V --> X{"允许自愈"}
-  X -->|"是"| M
-  X -->|"否"| W
-  W --> Y{"需要 Trace"}
-  Y -->|"是"| Z["Trace Archive"]
-  Y -->|"否"| END["最终输出"]
-  Z --> END
+  F --> G["生成 Task Packet + Context Summary + Context Audit"]
+  G --> H["Context Budget Gate"]
+  H --> I["Multi-Agent Gate"]
+  I --> J["Route: 加载必要摘要"]
+  J --> K{"是否修改文件"}
+  K -->|"否"| R0["只读调研输出"]
+  K -->|"是"| L{"Quick Mode 是否准入"}
+  L -->|"是"| M["Quick Task Card"]
+  L -->|"否"| N["Spec Sign-off"]
+  N --> O["Implementation Plan"]
+  O --> P["Go Gate"]
+  M --> Q["Execute"]
+  P --> Q
+  Q --> R["Reviewer Gate"]
+  R --> S["Pre-Build Review"]
+  S --> T{"允许验证"}
+  T -->|"否"| STOP1["STOP: 返回 Review / Plan / 用户确认"]
+  T -->|"是"| U["Verify"]
+  U --> V{"验证通过"}
+  V -->|"否"| W["Error Workflow + Triage"]
+  V -->|"是"| X["Postflight"]
+  W --> Y{"允许自愈"}
+  Y -->|"是"| N
+  Y -->|"否"| X
+  X --> Z{"需要 Trace"}
+  Z -->|"是"| ZA["Trace Archive"]
+  Z -->|"否"| END["最终输出"]
+  ZA --> END
 ```
 
 ## 一键部署流程

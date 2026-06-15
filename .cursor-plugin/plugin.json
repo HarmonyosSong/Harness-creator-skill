@@ -1,0 +1,9 @@
+{
+  "name": "harness-framework-deployer",
+  "version": "1.0.0",
+  "description": "Deploy a reusable Harness workflow framework into client repositories.",
+  "author": {
+    "name": "HarmonyosSong"
+  },
+  "skills": "./skills/"
+}

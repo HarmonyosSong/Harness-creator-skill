@@ -8,6 +8,7 @@
 
 - task_packet_path:
 - context_summary_path:
+- context_audit_path:
 - baseline_path:
 
 ## 输出

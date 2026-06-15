@@ -1,0 +1,31 @@
+{
+  "name": "harness-framework-deployer",
+  "description": "通用开源 Harness 框架部署与分发技能。用于在任意客户端仓库中初始化、部署、升级或审查一套 AI Harness 工作流框架，并支持 Codex、Claude Code、Cursor 三端插件分发。",
+  "version": "1.0.0",
+  "identifier": "harness-framework-deployer",
+  "author": "HarmonyosSong",
+  "category": "workflow",
+  "files": [
+    "README.md",
+    "skill.json",
+    "skills/harness-framework-deployer/SKILL.md",
+    "skills/harness-framework-deployer/agents/openai.yaml",
+    "skills/harness-framework-deployer/agents/claude.yaml",
+    "skills/harness-framework-deployer/references/harness-framework.md",
+    "skills/harness-framework-deployer/references/target-discovery.md",
+    "skills/harness-framework-deployer/references/generated-file-contracts.md",
+    "skills/harness-framework-deployer/references/one-click-deploy-implementation.md",
+    "skills/harness-framework-deployer/references/flow-diagrams.md",
+    "skills/harness-framework-deployer/references/review-checklist.md",
+    "skills/harness-framework-deployer/references/context-budget-governance.md",
+    "skills/harness-framework-deployer/scripts/check_deployed_harness.py",
+    "skills/harness-framework-deployer/assets/templates/harness-entry.md",
+    "skills/harness-framework-deployer/assets/templates/agent-contract.md",
+    "skills/harness-framework-deployer/assets/templates/task-packet.md",
+    "skills/harness-framework-deployer/assets/templates/project-harness-skill.md",
+    ".codex-plugin/plugin.json",
+    ".cursor-plugin/plugin.json",
+    ".claude-plugin/plugin.json",
+    ".claude-plugin/marketplace.json"
+  ]
+}

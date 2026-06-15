@@ -13,10 +13,19 @@ platforms:
 risk_level:
 high_risk_reasons:
 target_profile_evidence:
+context_budget:
+  level:
+  max_full_docs:
+  max_summary_docs:
+  read_full_routing_by_default:
+  read_agent_contracts_by_default:
 context_plan:
   read_first:
   expand_if_needed:
   forbidden_by_default:
+context_artifacts:
+  context_summary_path:
+  context_audit_path:
 recommended_agents:
 recommended_validation:
 spec_required:

@@ -36,7 +36,7 @@ def main() -> int:
         "--mode",
         choices=["skeleton", "full", "plugin"],
         default="skeleton",
-        help="validation strictness; plugin validates only Codex Plugin distribution shape",
+        help="validation strictness; plugin validates the selected Plugin distribution shape",
     )
     parser.add_argument(
         "--plugin",
@@ -45,7 +45,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--plugin-runtime",
-        choices=["codex", "claude", "both"],
+        choices=["cursor", "codex", "claude", "both", "all"],
         default="codex",
         help="which plugin distribution shape to validate",
     )
@@ -60,8 +60,9 @@ def main() -> int:
 
     validate_harness = args.mode != "plugin"
     validate_plugin = args.plugin or args.mode == "plugin"
-    validate_codex_plugin = validate_plugin and args.plugin_runtime in ("codex", "both")
-    validate_claude_plugin = validate_plugin and args.plugin_runtime in ("claude", "both")
+    validate_cursor_plugin = validate_plugin and args.plugin_runtime in ("cursor", "all")
+    validate_codex_plugin = validate_plugin and args.plugin_runtime in ("codex", "both", "all")
+    validate_claude_plugin = validate_plugin and args.plugin_runtime in ("claude", "both", "all")
 
     entries: list[Path] = []
     if validate_harness:
@@ -76,6 +77,36 @@ def main() -> int:
         for rel in REQUIRED_FILES:
             if not (root / rel).is_file():
                 failures.append(f"missing file: {rel}")
+
+    if validate_cursor_plugin:
+        cursor_plugin_json = root / ".cursor-plugin" / "plugin.json"
+        if not cursor_plugin_json.is_file():
+            failures.append("missing file: .cursor-plugin/plugin.json")
+        else:
+            try:
+                manifest = json.loads(cursor_plugin_json.read_text(encoding="utf-8"))
+            except json.JSONDecodeError as exc:
+                failures.append(f"invalid JSON: .cursor-plugin/plugin.json: {exc}")
+            else:
+                if not manifest.get("name"):
+                    failures.append("cursor plugin.json missing required field: name")
+                for key in ["version", "description", "author"]:
+                    if not manifest.get(key):
+                        failures.append(f"cursor plugin.json missing required field: {key}")
+                author = manifest.get("author")
+                if not isinstance(author, dict) or not author.get("name"):
+                    failures.append("cursor plugin.json missing required field: author.name")
+                skills_dir = manifest.get("skills")
+                if isinstance(skills_dir, str):
+                    if not (root / skills_dir).is_dir():
+                        failures.append(f"cursor plugin.json skills path does not exist: {skills_dir}")
+                else:
+                    failures.append("cursor plugin.json field must be a string: skills")
+                if "[TODO:" in cursor_plugin_json.read_text(encoding="utf-8"):
+                    failures.append("cursor plugin.json contains TODO placeholder")
+        skill_file = root / "skills" / "harness-framework-deployer" / "SKILL.md"
+        if not skill_file.is_file():
+            failures.append("missing file: skills/harness-framework-deployer/SKILL.md")
 
     if validate_codex_plugin:
         plugin_json = root / ".codex-plugin" / "plugin.json"
@@ -158,10 +189,13 @@ def main() -> int:
 
     if args.mode == "full":
         full_files = [
+            "harness_Engineering/knowledge/context_manifest.yaml",
             "harness_Engineering/knowledge/module-routing.md",
             "harness_Engineering/agents/orchestrator.md",
             "harness_Engineering/agents/context-explorer-agent.md",
             "harness_Engineering/agents/reviewer-agent.md",
+            "harness_Engineering/scripts/context-budget-gate.sh",
+            "harness_Engineering/scripts/context-expand.sh",
             "harness_Engineering/scripts/postflight-check.sh",
         ]
         for rel in full_files:
@@ -178,6 +212,8 @@ def main() -> int:
         print("PASS: Harness deployment shape is valid")
     if validate_plugin:
         print("plugin_distribution: valid")
+    if validate_cursor_plugin:
+        print("cursor_plugin_distribution: valid")
     if validate_codex_plugin:
         print("codex_plugin_distribution: valid")
     if validate_claude_plugin:

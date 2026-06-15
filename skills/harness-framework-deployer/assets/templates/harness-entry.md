@@ -22,14 +22,15 @@
 
 1. Thinking Mode
 2. Preflight
-3. Agent Gate
-4. Route
-5. Spec
-6. Plan
-7. Go
-8. Execute
-9. Review
-10. Prebuild
-11. Verify
-12. Postflight
-13. Trace
+3. Context Budget Gate
+4. Agent Gate
+5. Route
+6. Spec
+7. Plan
+8. Go
+9. Execute
+10. Review
+11. Prebuild
+12. Verify
+13. Postflight
+14. Trace

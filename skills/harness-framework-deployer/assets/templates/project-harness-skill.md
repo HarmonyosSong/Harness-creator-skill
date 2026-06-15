@@ -19,6 +19,7 @@ description: <repo> 项目 Harness 显式入口。只有用户调用 /harness �
 
 - task_packet_path
 - context_summary_path
+- context_audit_path
 - route_result
 - verification_result
 - risks
@@ -27,12 +28,14 @@ description: <repo> 项目 Harness 显式入口。只有用户调用 /harness �
 
 1. Thinking Mode
 2. Preflight
-3. Route
-4. Gate
-5. Verify
-6. Postflight
+3. Context Budget
+4. Route
+5. Gate
+6. Verify
+7. Postflight
 
 ## Gates
 
 - 未运行 preflight 不得修改文件。
+- 未运行 context budget gate 不得默认展开全文规则文档。
 - 修改类任务未授权不得执行。

@@ -10,6 +10,8 @@
 
 ```text
 <repo>/
+├── .cursor-plugin/
+│   └── plugin.json
 ├── .codex-plugin/
 │   └── plugin.json
 ├── .claude-plugin/
@@ -22,6 +24,20 @@
         ├── references/
         ├── assets/
         └── scripts/
+```
+
+最小 `.cursor-plugin/plugin.json`：
+
+```json
+{
+  "name": "harness-framework-deployer",
+  "version": "1.0.0",
+  "description": "Deploy a reusable Harness workflow framework into client repositories.",
+  "author": {
+    "name": "HarmonyosSong"
+  },
+  "skills": "./skills/"
+}
 ```
 
 最小 `.codex-plugin/plugin.json`：
@@ -71,6 +87,7 @@
 
 - 如果仓库根目录存在 `harness-framework-deployer/SKILL.md`，迁移到 `skills/harness-framework-deployer/`。
 - 保留 `agents/`、`references/`、`assets/`、`scripts/` 及其相对路径。
+- Cursor 分发新增 `.cursor-plugin/plugin.json`；多插件 Cursor marketplace 仓库才额外考虑 `.cursor-plugin/marketplace.json`。
 - Codex 分发新增 `.codex-plugin/plugin.json`。
 - Claude Code 分发新增 `.claude-plugin/plugin.json`；如果用户要求 GitHub marketplace 安装，同步新增 `.claude-plugin/marketplace.json`。
 - 不要把 marketplace 元数据写进 `SKILL.md`。
@@ -99,6 +116,8 @@ commands:
 plugin_distribution:
   enabled:
   runtime:
+  cursor_plugin_json:
+  cursor_marketplace_json_optional:
   codex_plugin_json:
   claude_plugin_json:
   claude_marketplace_json:
@@ -160,7 +179,48 @@ command <key>
 4. 根据高风险词和跨模块数量计算 risk_level。
 5. 生成 `runtime/task_packets/<timestamp>-<slug>/task_packet.md`。
 6. 同目录生成 `context_summary.md`。
-7. 如果 `--output` 指向 json，写入 task_packet_path、context_summary_path、risk_level、modules。
+7. 同目录生成 `context_audit.md`，记录预算上限、默认读取结果和后续扩容审计。
+8. 输出 `context_budget.level`、`context_budget.max_full_docs`、`context_budget.max_summary_docs`。
+9. 把 `Context Plan` 拆成 `read_first`、`expand_if_needed`、`forbidden_by_default`。
+10. 如果 `--output` 指向 json，写入 task_packet_path、context_summary_path、context_audit_path、risk_level、modules、context_budget。
+
+### `context-budget-gate`
+
+必须支持：
+
+```text
+--task-packet <path>
+--type <summary|full>
+--doc <path>
+--reason <text>
+--stage <name>
+```
+
+实现步骤：
+
+1. 从 Task Packet 或相邻 `context_audit.md` 读取预算等级和上限。
+2. 统计当前已读取的 `summary` / `full` 数量。
+3. 如果本次读取会超预算，返回非 0，除非用户或调用方显式允许 over-budget。
+4. 输出结构化结果，至少包含 `allowed`、`used`、`limit`、`over_budget`。
+
+### `context-expand`
+
+必须支持：
+
+```text
+--task-packet <path>
+--stage <name>
+--type <optional_full|optional_summary|forbidden_full|forbidden_summary>
+--doc <path>
+--reason <text>
+```
+
+实现步骤：
+
+1. 调用 `context-budget-gate`。
+2. 把本次扩容追加记录到 `context_audit.md`。
+3. 返回全文路径以及可用的摘要路径。
+4. 未命中摘要时返回空摘要路径，但不得伪造。
 
 ### `verify-fast`
 
@@ -215,10 +275,14 @@ command <key>
 
 - `harness_Engineering/scripts/harness-index.sh list` 可运行。
 - 所有生成脚本语法检查通过。
-- `preflight-context.sh --skip-git --task "Harness deploy smoke" <known path>` 能生成 Task Packet。
+- `preflight-context.sh --skip-git --task "Harness deploy smoke" <known path>` 能生成 Task Packet、Context Summary 和 Context Audit。
+- `harness_Engineering/knowledge/context_manifest.yaml` 存在，且 `knowledge/summaries/` 目录可发现。
+- `context-budget-gate.sh` 和 `context-expand.sh` 存在。
 - `AGENTS.md` 中登记的 command / skill 文件真实存在。
+- 如果是纯 Cursor Plugin 分发仓库，`check_deployed_harness.py <repo> --mode plugin --plugin-runtime cursor` 通过。
 - 如果是纯 Codex Plugin 分发仓库，`check_deployed_harness.py <repo> --mode plugin --plugin-runtime codex` 通过。
 - 如果是纯 Claude Code Plugin 分发仓库，`check_deployed_harness.py <repo> --mode plugin --plugin-runtime claude` 和 `claude plugin validate --strict <repo>` 通过。
-- 如果是双兼容分发仓库，`check_deployed_harness.py <repo> --mode plugin --plugin-runtime both`、`claude plugin validate --strict <repo>` 和 Codex plugin validator 通过。
-- 如果是已部署 Harness 的仓库同时需要 Plugin 分发，`check_deployed_harness.py <repo> --plugin --plugin-runtime <codex|claude|both>` 通过。
+- 如果是 Codex + Claude 双兼容分发仓库，`check_deployed_harness.py <repo> --mode plugin --plugin-runtime both`、`claude plugin validate --strict <repo>` 和 Codex plugin validator 通过。
+- 如果是三端兼容分发仓库，`check_deployed_harness.py <repo> --mode plugin --plugin-runtime all` 通过。
+- 如果是已部署 Harness 的仓库同时需要 Plugin 分发，`check_deployed_harness.py <repo> --plugin --plugin-runtime <codex|claude|cursor|both|all>` 通过。
 - 未确认命令全部出现在 `TODO(confirm)`，没有伪造成功。

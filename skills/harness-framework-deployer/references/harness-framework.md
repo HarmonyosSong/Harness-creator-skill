@@ -6,6 +6,7 @@ Harness 是一层 AI 工程操作系统，放在业务代码旁边，但不替�
 
 - 任务入口：判断什么时候进入 Harness。
 - 上下文收敛：把任务、路径、模块、风险、规则和验证建议写进 Task Packet。
+- 上下文预算治理：用 `context_manifest`、运行态摘要、`context-budget-gate` 和 `context_audit` 限制窗口扩张。
 - 工作流门禁：在修改前要求 Spec / Plan / Go，在完成前要求 Review / Verify / Postflight。
 - 角色协作：用 Agent 契约限定 Orchestrator、Explorer、Coder、Reviewer、Triage、Verifier 的输入输出。
 - 验证闭环：把构建、测试、lint、截图、人工阻塞等统一写成可审计产物。
@@ -22,25 +23,30 @@ target-repo/
 │   ├── knowledge/
 │   │   ├── README.md
 │   │   ├── architecture.md
+│   │   ├── context_manifest.yaml
 │   │   ├── module-routing.md
 │   │   ├── deep-thinking-mode.md
 │   │   ├── quick-mode.md
 │   │   ├── spec-plan-go.md
 │   │   ├── multi-agent-patterns.md
 │   │   ├── error-log.md
+│   │   ├── summaries/
 │   │   ├── playbooks/
 │   │   └── module_refs/
 │   ├── agents/
 │   ├── scripts/
+│   │   ├── context-budget-gate.sh
+│   │   └── context-expand.sh
 │   ├── runtime/
 │   └── archive/
 ├── AGENTS.md
 ├── .codex/commands/harness.md
 ├── .codex/skills/<repo>-harness/SKILL.md
+├── .cursor/skills/<repo>-harness/SKILL.md
 └── skills/<repo>-.../SKILL.md
 ```
 
-只创建目标 runtime 真正可用的入口；目标仓库不用 Claude，就不要默认创建 `.claude/`。
+只创建目标 runtime 真正可用的入口；目标仓库不用 Claude，就不要默认创建 `.claude/`；不用 Cursor，也不要默认创建 `.cursor/`。
 
 ## 80% 还原边界
 
@@ -48,7 +54,8 @@ target-repo/
 
 - Harness 目录结构。
 - 入口、gate、Agent、runtime、verification、trace 流程。
-- Task Packet、Context Summary、Spec、Plan、Review、Postflight schema。
+- Task Packet、Context Summary、Context Audit、Spec、Plan、Review、Postflight schema。
+- `context_manifest.yaml`、运行态 `summaries/`、`context-budget-gate`、`context-expand`。
 - 脚本职责和命令分类。
 - 风险输出和收口格式。
 
@@ -61,3 +68,4 @@ target-repo/
 - 代码规范和架构约束。
 - 业务域和高风险链路。
 - 项目级 skills。
+- 默认预算档位与全文扩容触发器。
